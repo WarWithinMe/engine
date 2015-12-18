@@ -159,7 +159,6 @@
 ../src/resources/parser/scene.js
 ../src/asset/asset.js
 ../src/asset/asset-registry.js
-../contrib/rsvp-3.0.6.min.js
 ../src/core/promise.js
 ../src/backwards-compatibility.js
 ../src/scene/immediate.js

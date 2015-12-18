@@ -1,4 +1,4 @@
 pc.promise = {
-    Promise: window.RSVP.Promise,
-    all: window.RSVP.all,
+    Promise: window.Promise,
+    all: function(a,b){ return window.Promise.all(a,b); }
 };
