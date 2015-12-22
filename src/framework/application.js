@@ -688,7 +688,7 @@ pc.extend(pc, function () {
             Application._currentApplication = this;
 
             // Submit a request to queue up a new animation frame immediately
-            window.requestAnimationFrame(this.tick.bind(this));
+            // window.requestAnimationFrame(this.tick.bind(this));
 
             var now = pc.now();
             var ms = now - (this._time || now);
