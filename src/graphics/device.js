@@ -1632,7 +1632,7 @@ pc.extend(pc, function () {
      * @description Width of the back buffer in pixels.
      */
     Object.defineProperty(GraphicsDevice.prototype, 'width', {
-        get: function () { return this.gl.drawingBufferWidth || this.canvas.width; }
+        get: function () { return this.canvas.width; }
     });
 
     /**
@@ -1642,7 +1642,7 @@ pc.extend(pc, function () {
      * @description Height of the back buffer in pixels.
      */
     Object.defineProperty(GraphicsDevice.prototype, 'height', {
-        get: function () { return this.gl.drawingBufferHeight || this.canvas.height; }
+        get: function () { return this.canvas.height; }
     });
 
     Object.defineProperty(GraphicsDevice.prototype, 'fullscreen', {
