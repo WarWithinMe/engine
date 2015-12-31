@@ -709,10 +709,7 @@ pc.extend(pc, function () {
 
             scene._activeCamera = camera;
 
-            if (scene.updateShaders) {
                 scene.updateShadersFunc(device);
-                scene.updateShaders = false;
-            }
 
             var target = camera.getRenderTarget();
             var isHdr = false;

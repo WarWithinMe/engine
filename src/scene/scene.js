@@ -456,6 +456,9 @@ pc.extend(pc, function () {
     // - lights are added or removed
     // - gamma correction changes
     Scene.prototype.updateShadersFunc = function (device) {
+        if (!this.updateShaders) { return; }
+        this.updateShaders = false;
+
         var i;
 
         if (this._skyboxCubeMap && !this._skyboxModel) {
