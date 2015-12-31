@@ -110,6 +110,22 @@ float getShadowPCF3x3_YZW(inout psInternalData data, sampler2D shadowMap, vec3 s
     return _getShadowPCF3x3_YZW(data, shadowMap, shadowParams);
 }
 
+float chebychevUpper(vec2 moments, float d) {
+    if (d <= 0.0) { return 1.0; }
+    float variance = max(moments.y - (moments.x * moments.x), 1e-5);
+    return variance / (variance + d * d);
+}
+
+float getShadowEVSM(inout psInternalData data, sampler2D shadowMap, vec3 shadowParams, float expScale) {
+    vec4 sample = texture2D( shadowMap, data.shadowCoord.xy );
+    float z = ( data.shadowCoord.z + shadowParams.z ) * 2.0 - 1.0;
+
+    return min(
+        chebychevUpper( sample.xy,  exp( expScale * z) - sample.x ),
+        chebychevUpper( sample.zw, -exp(-expScale * z) - sample.z )
+    );
+}
+
 
 // ----- Point Sampling -----
 
@@ -181,6 +197,16 @@ float _getShadowPoint(inout psInternalData data, samplerCube shadowMap, vec4 sha
 
 float getShadowPointPCF3x3(inout psInternalData data, samplerCube shadowMap, vec4 shadowParams) {
     return _getShadowPoint(data, shadowMap, shadowParams, data.lightDirW);
+}
+
+float getShadowPointEVSM(inout psInternalData data, samplerCube shadowMap, vec4 shadowParams, float expScale) {
+    vec4 sample = textureCube(shadowMap, data.lightDirNormW);
+    float z = ( length(data.lightDirW) * shadowParams.w + shadowParams.z ) * 2.0 - 1.0;
+
+    return min(
+        chebychevUpper( sample.xy,  exp( expScale * z) - sample.x ),
+        chebychevUpper( sample.zw, -exp(-expScale * z) - sample.z )
+    );
 }
 
 void normalOffsetPointShadow(inout psInternalData data, vec4 shadowParams) {

@@ -256,7 +256,7 @@ pc.extend(pc, function () {
     //////////////////////////////////////
     function createShadowMap(device, width, height) {
         var shadowMap = new pc.Texture(device, {
-            format: pc.PIXELFORMAT_R8_G8_B8_A8,
+            format: device.shadowSampleType === pc.SHADOWSAMPLE_EVSM ? pc.PIXELFORMAT_RGB32F : pc.PIXELFORMAT_R8_G8_B8_A8,
             width: width,
             height: height,
             autoMipmap: false
@@ -270,7 +270,7 @@ pc.extend(pc, function () {
 
     function createShadowCubeMap(device, size) {
         var cubemap = new pc.Texture(device, {
-            format: pc.PIXELFORMAT_R8_G8_B8_A8,
+            format: device.shadowSamplePointType === pc.SHADOWSAMPLE_EVSM ? pc.PIXELFORMAT_RGB32F : pc.PIXELFORMAT_R8_G8_B8_A8,
             width: size,
             height: size,
             cubemap: true,
@@ -291,14 +291,18 @@ pc.extend(pc, function () {
         return targets;
     }
 
-    function createShadowCamera(device) {
+    function createShadowCamera(device, evsmSample) {
         // We don't need to clear the color buffer if we're rendering a depth map
         var flags = pc.CLEARFLAG_DEPTH;
         if (!device.extDepthTexture) flags |= pc.CLEARFLAG_COLOR;
 
+        // Math.exp(43) will overflow a FLOAT,
+        // so we clear the shadowmap with Math.exp(42) as the greatest depth?
+        var k = evsmSample ? Math.exp(42.0) : 1.0;
+
         var shadowCam = new pc.Camera();
         shadowCam.setClearOptions({
-            color: [1.0, 1.0, 1.0, 1.0],
+            color: [k,k,k,k],
             depth: 1.0,
             flags: flags
         });
@@ -324,7 +328,8 @@ pc.extend(pc, function () {
         var shadowBuffer;
 
         if (shadowCam === null) {
-            shadowCam = light._shadowCamera = createShadowCamera(device);
+            var sampleType = light.getType()==pc.LIGHTTYPE_POINT ? device.shadowSamplePointType : device.shadowSampleType
+            shadowCam = light._shadowCamera = createShadowCamera(device, sampleType == pc.SHADOWSAMPLE_EVSM);
             createShadowBuffer(device, light);
         } else {
             shadowBuffer = shadowCam.getRenderTarget();
@@ -709,7 +714,7 @@ pc.extend(pc, function () {
 
             scene._activeCamera = camera;
 
-                scene.updateShadersFunc(device);
+            scene.updateShadersFunc(device);
 
             var target = camera.getRenderTarget();
             var isHdr = false;

@@ -820,7 +820,6 @@ pc.extend(pc, function () {
                 shadingModel:               this.shadingModel,
                 fresnelModel:               this.fresnelModel,
                 packedNormal:               this.normalMap? (this.normalMap.format===pc.PIXELFORMAT_DXT5) : false,
-                shadowSampleType:           this.shadowSampleType,
                 forceFragmentPrecision:     this.forceFragmentPrecision,
                 fastTbn:                    this.fastTbn,
                 cubeMapProjection:          this.cubeMapProjection,
@@ -976,7 +975,6 @@ pc.extend(pc, function () {
         _defineFlag(obj, "shadingModel", pc.SPECULAR_BLINN);
         _defineFlag(obj, "fresnelModel", pc.FRESNEL_NONE);
         _defineFlag(obj, "cubeMapProjection", pc.CUBEPROJ_NONE);
-        _defineFlag(obj, "shadowSampleType", pc.SHADOWSAMPLE_PCF3X3);
         _defineFlag(obj, "customFragmentShader", null);
         _defineFlag(obj, "forceFragmentPrecision", null);
         _defineFlag(obj, "noFog", false);

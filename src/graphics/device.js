@@ -208,6 +208,20 @@ pc.extend(pc, function () {
         this._width = 0;
         this._height = 0;
 
+
+
+        this._shadowSampleType = pc.SHADOWSAMPLE_PCF3X3;
+        this._shadowSamplePointType = pc.SHADOWSAMPLE_PCF3X3;
+        if ( options.shadow ) {
+            this._shadowSampleType = options.shadow.sampleType || this._shadowSampleType;
+            this._shadowSamplePointType = options.shadow.samplePointType || this._shadowSamplePointType;
+            this._evsmScale = options.shadow.evsmScale;
+            delete options.shadow;
+        }
+        this._evsmScale = Number( this._evsmScale || 30.0 ).toFixed(2);
+
+
+
         if (!window.WebGLRenderingContext) {
             throw new pc.UnsupportedBrowserError();
         }
@@ -1689,6 +1703,16 @@ pc.extend(pc, function () {
             this._maxPixelRatio = ratio;
             this.resizeCanvas(this._width, this._height);
         }
+    });
+
+    Object.defineProperty(GraphicsDevice.prototype, 'shadowSampleType', {
+        get: function () { return this._shadowSampleType; }
+    });
+    Object.defineProperty(GraphicsDevice.prototype, 'shadowSamplePointType', {
+        get: function () { return this._shadowSamplePointType; }
+    });
+    Object.defineProperty(GraphicsDevice.prototype, 'evsmScale', {
+        get: function () { return this._evsmScale; }
     });
 
     return {

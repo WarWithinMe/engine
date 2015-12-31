@@ -78,7 +78,14 @@ pc.programlib.depthrgba = {
         //////////////////////////////
         // GENERATE FRAGMENT SHADER //
         //////////////////////////////
-        code = getSnippet(device, 'fs_precision');
+        var sampleType = options.point ? device.shadowSamplePointType : device.shadowSampleType;
+
+        if ( sampleType === pc.SHADOWSAMPLE_EVSM ) {
+            code =  '#extension GL_OES_standard_derivatives : enable\n';
+        } else {
+            code = '';
+        }
+        code += getSnippet(device, 'fs_precision');
 
         if (options.opacityMap) {
             code += 'varying vec2 vUv0;\n\n';
@@ -92,11 +99,7 @@ pc.programlib.depthrgba = {
         }
 
         var chunks = pc.shaderChunks;
-        if (options.shadowType===pc.SHADOW_DEPTHMASK) {
-            code += chunks.packDepthMaskPS;
-        } else {
-            code += chunks.packDepthPS;
-        }
+        code += chunks.packDepthPS;
 
         // FRAGMENT SHADER BODY
         code += getSnippet(device, 'common_main_begin');
@@ -105,10 +108,36 @@ pc.programlib.depthrgba = {
             code += '    if (texture2D(texture_opacityMap, vUv0).' + options.opacityChannel + ' < 0.25) discard;\n\n';
         }
 
-        if (options.point) {
-            code += "   gl_FragData[0] = packFloat(min(distance(view_position, worldPos) / light_radius, 0.99999));\n";
+        if ( sampleType === pc.SHADOWSAMPLE_EVSM ) {
+            if (options.point) {
+                code += '    float depth = min(distance(view_position, worldPos) / light_radius, 0.99999) * 2.0 - 1.0;\n';
+            } else {
+                code += '    float depth = gl_FragCoord.z * 2.0 - 1.0;\n';
+            }
+            // Exponential VSM
+            code += '    float z  = exp( ' + device.evsmScale + ' * depth );\n';
+            code += '    float m2 = z*z;\n';
+
+            // Bias m2
+            code += '    float dx = dFdx(z);\n';
+            code += '    float dy = dFdy(z);\n';
+            code += '    m2 += 0.25 * (dx*dx + dy*dy);\n';
+
+            // Negative exp z
+            code += '    float nz  = -exp( -' + device.evsmScale + ' * depth );\n';
+            code += '    float nm2 = nz*nz;\n';
+
+            code += '    dx = dFdx(nz);\n';
+            code += '    dy = dFdy(nz);\n';
+            code += '    nm2 += 0.25 * (dx*dx + dy*dy);\n';
+
+            code += '    gl_FragColor = vec4( z, m2, nz, nm2 );\n';
         } else {
-            code += '    gl_FragData[0] = packFloat(gl_FragCoord.z);\n';
+            if (options.point) {
+                code += '    gl_FragData[0] = packFloat(min(distance(view_position, worldPos) / light_radius, 0.99999));\n';
+            } else  {
+                code += '    gl_FragData[0] = packFloat(gl_FragCoord.z);\n';
+            }
         }
 
         code += getSnippet(device, 'common_main_end');

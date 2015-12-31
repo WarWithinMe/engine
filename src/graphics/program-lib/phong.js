@@ -648,23 +648,32 @@ pc.programlib.phong = {
 
                 code += "   data.atten *= getLightDiffuse(data);\n";
                 if (light.getCastShadows() && !options.noShadow) {
-
                     var shadowReadMode = null;
+                    var shadowSampleType = lightType===pc.LIGHTTYPE_POINT ? device.shadowSamplePointType : device.shadowSampleType;
+                    var evsmScaleParam = "";
                     if (light._shadowType<=pc.SHADOW_DEPTHMASK) {
-                        if (options.shadowSampleType===pc.SHADOWSAMPLE_HARD) {
-                            shadowReadMode = "Hard";
-                        } else if (light._shadowType===pc.SHADOW_DEPTH && options.shadowSampleType===pc.SHADOWSAMPLE_PCF3X3) {
-                            shadowReadMode = "PCF3x3";
-                        } else if (light._shadowType===pc.SHADOW_DEPTHMASK && options.shadowSampleType===pc.SHADOWSAMPLE_PCF3X3) {
-                            shadowReadMode = "PCF3x3_YZW";
-                        } else if (light._shadowType===pc.SHADOW_DEPTHMASK && options.shadowSampleType===pc.SHADOWSAMPLE_MASK) {
-                            shadowReadMode = "Mask";
+                        switch ( shadowSampleType ) {
+                            case pc.SHADOWSAMPLE_HARD:
+                                shadowReadMode = "Hard";
+                                break;
+                            case pc.SHADOWSAMPLE_PCF3X3:
+                                shadowReadMode = light._shadowType === pc.SHADOW_DEPTH ? "PCF3x3" : "PCF3x3_YZW";
+                                break;
+                            case pc.SHADOWSAMPLE_MASK:
+                                shadowReadMode = "Mask";
+                                break
+                            case pc.SHADOWSAMPLE_EVSM:
+                                shadowReadMode = "EVSM";
+                                evsmScaleParam = "," + device.evsmScale;
+                                break;
+                            default:
+                                shadowReadMode = "PCF3x3";
                         }
                     }
 
                     if (shadowReadMode!==null) {
                         if (lightType===pc.LIGHTTYPE_POINT) {
-                            shadowCoordArgs = "(data, light"+i+"_shadowMap, light"+i+"_shadowParams);\n";
+                            shadowCoordArgs = "(data, light"+i+"_shadowMap, light"+i+"_shadowParams" + evsmScaleParam + ");\n";
                             if (light.getNormalOffsetBias()) {
                                 code += "   normalOffsetPointShadow(data, light"+i+"_shadowParams);\n";
                             }
@@ -676,7 +685,7 @@ pc.programlib.phong = {
                                 shadowCoordArgs = "(data, light"+i+"_shadowMatrix, light"+i+"_shadowParams);\n";
                                 code += this._nonPointShadowMapProjection(options.lights[i], shadowCoordArgs);
                             }
-                            code += "   data.atten *= getShadow" + shadowReadMode + "(data, light"+i+"_shadowMap, light"+i+"_shadowParams);\n";
+                            code += "   data.atten *= getShadow" + shadowReadMode + "(data, light"+i+"_shadowMap, light"+i+"_shadowParams" + evsmScaleParam + ");\n";
                         }
                     }
                 }
