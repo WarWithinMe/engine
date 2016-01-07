@@ -78,7 +78,7 @@ pc.programlib.depthrgba = {
         //////////////////////////////
         // GENERATE FRAGMENT SHADER //
         //////////////////////////////
-        var sampleType = options.point ? device.shadowSamplePointType : device.shadowSampleType;
+        var sampleType = options.point ? device.shadowSamplePoint : device.shadowSample;
 
         if ( sampleType === pc.SHADOWSAMPLE_EVSM ) {
             code =  '#extension GL_OES_standard_derivatives : enable\n';
@@ -110,12 +110,12 @@ pc.programlib.depthrgba = {
 
         if ( sampleType === pc.SHADOWSAMPLE_EVSM ) {
             if (options.point) {
-                code += '    float depth = min(distance(view_position, worldPos) / light_radius, 0.99999) * 2.0 - 1.0;\n';
+                code += '    float depth = min(distance(view_position, worldPos) / light_radius, 0.99999);\n';
             } else {
-                code += '    float depth = gl_FragCoord.z * 2.0 - 1.0;\n';
+                code += '    float depth = gl_FragCoord.z;\n';
             }
             // Exponential VSM
-            code += '    float z  = exp( ' + device.evsmScale + ' * depth );\n';
+            code += '    float z  = exp( ' + device.evsmScale.x.toFixed(2) + ' * depth );\n';
             code += '    float m2 = z*z;\n';
 
             // Bias m2
@@ -124,7 +124,7 @@ pc.programlib.depthrgba = {
             code += '    m2 += 0.25 * (dx*dx + dy*dy);\n';
 
             // Negative exp z
-            code += '    float nz  = -exp( -' + device.evsmScale + ' * depth );\n';
+            code += '    float nz  = -exp( -' + device.evsmScale.y.toFixed(2) + ' * depth );\n';
             code += '    float nm2 = nz*nz;\n';
 
             code += '    dx = dFdx(nz);\n';

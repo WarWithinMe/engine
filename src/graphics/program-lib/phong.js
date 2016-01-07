@@ -649,10 +649,10 @@ pc.programlib.phong = {
                 code += "   data.atten *= getLightDiffuse(data);\n";
                 if (light.getCastShadows() && !options.noShadow) {
                     var shadowReadMode = null;
-                    var shadowSampleType = lightType===pc.LIGHTTYPE_POINT ? device.shadowSamplePointType : device.shadowSampleType;
+                    var shadowSample = lightType===pc.LIGHTTYPE_POINT ? device.shadowSamplePoint : device.shadowSample;
                     var evsmScaleParam = "";
                     if (light._shadowType<=pc.SHADOW_DEPTHMASK) {
-                        switch ( shadowSampleType ) {
+                        switch ( shadowSample ) {
                             case pc.SHADOWSAMPLE_HARD:
                                 shadowReadMode = "Hard";
                                 break;
@@ -664,7 +664,7 @@ pc.programlib.phong = {
                                 break
                             case pc.SHADOWSAMPLE_EVSM:
                                 shadowReadMode = "EVSM";
-                                evsmScaleParam = "," + device.evsmScale;
+                                evsmScaleParam = "," + device.evsmScale.x.toFixed(2) + "," + device.evsmScale.y.toFixed(2);
                                 break;
                             default:
                                 shadowReadMode = "PCF3x3";

@@ -97,7 +97,7 @@ pc.extend(pc, function () {
         set: function(value) {
             console.warn("WARNING: enable: Property is deprecated. Set enabled property instead.");
             this.enabled = value;
-        },
+        }
     });
 
     pc.extend(LightComponent.prototype, {

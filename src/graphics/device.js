@@ -210,15 +210,17 @@ pc.extend(pc, function () {
 
 
 
-        this._shadowSampleType = pc.SHADOWSAMPLE_PCF3X3;
-        this._shadowSamplePointType = pc.SHADOWSAMPLE_PCF3X3;
+        this._shadowSample      = pc.SHADOWSAMPLE_PCF3X3;
+        this._shadowSamplePoint = pc.SHADOWSAMPLE_PCF3X3;
         if ( options.shadow ) {
-            this._shadowSampleType = options.shadow.sampleType || this._shadowSampleType;
-            this._shadowSamplePointType = options.shadow.samplePointType || this._shadowSamplePointType;
-            this._evsmScale = options.shadow.evsmScale;
+            this._shadowSample      = options.shadow.sample      || this._shadowSample;
+            this._shadowSamplePoint = options.shadow.samplePoint || this._shadowSamplePoint;
+            this._evsmScale         = options.shadow.evsmScale;
             delete options.shadow;
         }
-        this._evsmScale = Number( this._evsmScale || 30.0 ).toFixed(2);
+        if ( !this._evsmScale ) {
+            this._evsmScale = new pc.Vec2( 30, 5 );
+        }
 
 
 
@@ -1705,11 +1707,14 @@ pc.extend(pc, function () {
         }
     });
 
-    Object.defineProperty(GraphicsDevice.prototype, 'shadowSampleType', {
-        get: function () { return this._shadowSampleType; }
+    Object.defineProperty(GraphicsDevice.prototype, 'shadowType', {
+        get: function () { return this._shadowType; }
     });
-    Object.defineProperty(GraphicsDevice.prototype, 'shadowSamplePointType', {
-        get: function () { return this._shadowSamplePointType; }
+    Object.defineProperty(GraphicsDevice.prototype, 'shadowSample', {
+        get: function () { return this._shadowSample; }
+    });
+    Object.defineProperty(GraphicsDevice.prototype, 'shadowSamplePoint', {
+        get: function () { return this._shadowSamplePoint; }
     });
     Object.defineProperty(GraphicsDevice.prototype, 'evsmScale', {
         get: function () { return this._evsmScale; }

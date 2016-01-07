@@ -24,10 +24,9 @@ float getShadowPCF3x3_YZWVS(inout psInternalData data, sampler2D shadowMap, vec3
     return _getShadowPCF3x3_YZW(data, shadowMap, shadowParams);
 }
 
-float getShadowEVSMVS(inout psInternalData data, sampler2D shadowMap, vec3 shadowParams, float expScale) {
-    data.shadowCoord = vMainShadowUv.xyz;
-    data.shadowCoord.xyz /= vMainShadowUv.w;
+float getShadowEVSMVS(inout psInternalData data, sampler2D shadowMap, vec3 shadowParams, float expScalePos, float expScaleNeg) {
+    data.shadowCoord = vMainShadowUv.xyz / vMainShadowUv.w;
     data.shadowCoord.z = min(data.shadowCoord.z, 1.0);
-    return getShadowEVSM(data, shadowMap, shadowParams, expScale);
+    return getShadowEVSM(data, shadowMap, shadowParams, expScalePos, expScaleNeg);
 }
 

@@ -502,6 +502,10 @@ pc.extend(pc, function () {
             if (this.shadowUpdateMode!==pc.SHADOWUPDATE_REALTIME) {
                 this.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
             }
+        },
+
+        isPointLight: function () {
+            return this.type === pc.LIGHTTYPE_POINT;
         }
     };
 

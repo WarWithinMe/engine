@@ -116,13 +116,13 @@ float chebychevUpper(vec2 moments, float d) {
     return variance / (variance + d * d);
 }
 
-float getShadowEVSM(inout psInternalData data, sampler2D shadowMap, vec3 shadowParams, float expScale) {
+float getShadowEVSM(inout psInternalData data, sampler2D shadowMap, vec3 shadowParams, float expScalePos, float expScaleNeg) {
     vec4 sample = texture2D( shadowMap, data.shadowCoord.xy );
-    float z = ( data.shadowCoord.z + shadowParams.z ) * 2.0 - 1.0;
+    float z = ( data.shadowCoord.z + shadowParams.z );
 
     return min(
-        chebychevUpper( sample.xy,  exp( expScale * z) - sample.x ),
-        chebychevUpper( sample.zw, -exp(-expScale * z) - sample.z )
+        chebychevUpper( sample.xy,  exp( expScalePos * z) - sample.x ),
+        chebychevUpper( sample.zw, -exp(-expScaleNeg * z) - sample.z )
     );
 }
 
@@ -199,13 +199,13 @@ float getShadowPointPCF3x3(inout psInternalData data, samplerCube shadowMap, vec
     return _getShadowPoint(data, shadowMap, shadowParams, data.lightDirW);
 }
 
-float getShadowPointEVSM(inout psInternalData data, samplerCube shadowMap, vec4 shadowParams, float expScale) {
+float getShadowPointEVSM(inout psInternalData data, samplerCube shadowMap, vec4 shadowParams, float expScalePos, float expScaleNeg ) {
     vec4 sample = textureCube(shadowMap, data.lightDirNormW);
     float z = ( length(data.lightDirW) * shadowParams.w + shadowParams.z ) * 2.0 - 1.0;
 
     return min(
-        chebychevUpper( sample.xy,  exp( expScale * z) - sample.x ),
-        chebychevUpper( sample.zw, -exp(-expScale * z) - sample.z )
+        chebychevUpper( sample.xy,  exp( expScalePos * z) - sample.x ),
+        chebychevUpper( sample.zw, -exp(-expScaleNeg * z) - sample.z )
     );
 }
 
