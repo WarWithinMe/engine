@@ -974,8 +974,8 @@ pc.extend(pc, function () {
                             var z = _getZFromAABB( shadowCamView, scene._sceneAabb.getMin(), scene._sceneAabb.getMax(), minx, maxx, miny, maxy );
                             // Always use the scene's aabb's Z value
                             // Otherwise object between the light and the frustum won't cast shadow.
-                            maxz = z.max;
-                            if (z.min > minz) minz = z.min;
+                            maxz = Math.max( aabbMin.z, aabbMax.z );
+                            minz = Math.max( minz, Math.min( aabbMin.z, aabbMax.z) );
                         }
 
                         // 7. Use your min and max values to create an off-center orthographic projection.
